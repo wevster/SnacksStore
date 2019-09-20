@@ -1,0 +1,261 @@
+﻿
+@{
+    ViewData["Title"] = "Snack Store niña Lita";
+    Layout = "_layout";
+}
+
+<h2>Welcome to our Store @ViewBag.NameUser</h2>
+@if (ViewBag.IsAdmin == 3)
+{
+    @Html.ActionLink("Login", "Login")
+}
+else
+{
+    @Html.ActionLink("Logout", "Login")
+}
+
+<div class="container">
+    <div class="panel">
+        <h3>List of Snacks</h3>
+        @if (ViewBag.IsAdmin == 1)
+        {
+            <div class="col-md-10">
+                <a class="btn btn-success" style="margin-bottom:10px" onclick="ShowPopup('@Url.Action("AddEditProduct", "Home")')"><i class="fa fa-plus"></i> Add New Product</a>
+            </div>
+        }
+
+        <table id="SnacksTableAdmin" class="display" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Price</th>
+                    <th>Type</th>
+                    @if (ViewBag.IsAdmin != 3)
+                    {
+                        <th>Actions</th>
+                    }
+
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+@section scripts{
+
+
+
+
+    <script>
+    var popup, dataTable;
+
+    $(document).ready(function () {
+
+
+
+
+
+
+        @if (ViewBag.IsAdmin == 1)
+        {
+            <text>
+                IsAdmin(1);
+            </text>
+        }
+        @if (ViewBag.IsAdmin == 3)
+        {
+            <text>
+                IsAdmin(3);
+            </text>
+        }
+        @if (ViewBag.IsAdmin == 2) {
+            <text>
+                IsAdmin(2);
+            </text>
+        }
+
+                    function IsAdmin(res) {
+                        if (res == 1) {
+                            dataTable = $('#SnacksTableAdmin').DataTable({
+                                "ajax": {
+                        "url": "/api/products/GetProducts",
+                        "type": "GET",
+                        "datatype": "json"
+                                },
+                    "columns": [
+                        { "data": "productName" },
+                        { "data": "price" },
+                        { "data": "details" },
+                        {
+                            "data": "productID",
+                            "render": function (data) {
+            return "<a class='btn btn-default btn-sm' onclick=ShowPopup('/home/AddEditProduct/" + data + "')><i class='fa fa-pencil'></i> Edit</a><a class='btn btn-danger btn-sm' style='margin-left:5px' onclick=DeleteProduct(" + data + ")><i class='fa fa-trash'></i> Delete</a><a class='btn btn-success btn-sm' style='margin-left:5px' onclick=BuyProduct(" + data + ")><i class='fa fa-dollar'></i> Buy Product</a>";
+        }
+                        }
+                    ],
+                    "language": {
+                        "emptyTable": "no data found."
+                    }
+                });
+
+                        }
+                        if (res == 3) {
+                            dataTable = $('#SnacksTableAdmin').DataTable({
+                                "ajax": {
+                                    "url": "/api/products/GetProducts",
+                                    "type": "GET",
+                                    "datatype": "json"
+                                },
+                                "columns": [
+                                    { "data": "productName" },
+                                    { "data": "price" },
+                                    { "data": "details" }
+                                ],
+                                "language": {
+                                    "emptyTable": "no data found."
+                                }
+                            });
+
+                        }
+                        if (res == 2) {
+                            dataTable = $('#SnacksTableAdmin').DataTable({
+                                "ajax": {
+                                    "url": "/api/products/GetProducts",
+                                    "type": "GET",
+                                    "datatype": "json"
+                                },
+                                "columns": [
+                                    { "data": "productName" },
+                                    { "data": "price" },
+                                    { "data": "details" },
+                                    {
+                                        "data": "productID",
+                                        "render": function (data) {
+                                            return "<a class='btn btn-success btn-sm' style='margin-left:5px' onclick=ShowPopup('/home/BuyProduct/" + data + "')><i class='fa fa-dollar'></i> Buy Product</a>";
+                                        }
+                                    }
+                                ],
+                                "language": {
+                                    "emptyTable": "no data found."
+                                }
+                            });
+
+                        }
+
+        }
+
+
+    });
+
+    function ShowPopup(url) {
+        var formDiv = $('<div/>');
+        $.get(url)
+            .done(function (response) {
+                formDiv.html(response);
+                popup = formDiv.dialog({
+                    autoOpen: true,
+                    resizeable: false,
+                    width: 800,
+                    height: 600,
+                    title: 'Snacks Products',
+                    close: function () {
+                        popup.dialog('destroy').remove();
+                    }
+                });
+            });
+    }
+
+
+    function SubmitAddEdit(form) {
+        //alert("nt");
+        $.validator.unobtrusive.parse(form);
+        if ($(form).valid()) {
+            var data = $(form).serializeJSON();
+            data = JSON.stringify(data);
+            console.log(data);
+            $.ajax({
+                type: 'POST',
+                url: '/api/products/PostProduct',
+                data: data,
+                contentType: 'application/json',
+                success: function (data) {
+                    if (data.success) {
+                        popup.dialog('close');
+                        ShowMessage(data.message);
+                        dataTable.ajax.reload();
+                    }
+                }
+            });
+
+        }
+        return false;
+        }
+
+        function BuyProducts(form) {
+            //alert("nt");
+            $.validator.unobtrusive.parse(form);
+            if ($(form).valid()) {
+                var data = $(form).serializeJSON();
+                data = JSON.stringify(data);
+                console.log(data);
+                $.ajax({
+                    type: 'POST',
+                    url: '/api/products/BuyProducts',
+                    data: data,
+                    contentType: 'application/json',
+                    success: function (data) {
+                        if (data.success) {
+                            popup.dialog('close');
+                            ShowMessage(data.message);
+                            dataTable.ajax.reload();
+                        } else {
+                            if (!data.success) {
+
+                                ShowMessageError(data.message);
+                            }
+                        }
+                    }
+                });
+
+            }
+            return false;
+        }
+
+    function DeleteProduct(id) {
+        swal({
+            title: "Are you sure want to Delete?",
+            text: "You will not be able to restore the file!",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Yes, delete it!",
+            closeOnConfirm: true
+        }, function () {
+            $.ajax({
+                type: 'DELETE',
+                url: '/api/products/DeleteProduct/' + id,
+                success: function (data) {
+                    if (data.success) {
+                        ShowMessage(data.message);
+                        dataTable.ajax.reload();
+                    }
+                }
+            });
+        });
+
+
+    }
+
+
+
+    function ShowMessage(msg) {
+        toastr.success(msg);
+        }
+        function ShowMessageError(msg) {
+            toastr.error(msg);
+        }
+
+
+    </script>
+
+}

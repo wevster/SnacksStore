@@ -1,0 +1,62 @@
+﻿@model SnacksStore.Models.Users
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_layout";
+}
+
+<h2>Login</h2>
+<form onsubmit="return Login(this)">
+    <div class="form-group" style="width:50%">
+        <label asp-for="ProductName" class="control-label"></label>
+        @Html.LabelFor(model => model.UserName)
+        <div>
+            @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control" } })
+        </div><div>
+
+            @Html.LabelFor(model => model.Password)
+            @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control", @Type = "password" } })
+
+        </div>
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+    @Html.ActionLink("Back to the Store", "Index","Home")
+</form>
+@section scripts{
+<script>
+    function Login(form) {
+        
+        $.validator.unobtrusive.parse(form);
+        if ($(form).valid()) {
+            var data = $(form).serializeJSON();
+            data = JSON.stringify(data);
+            console.log(data);
+            $.ajax({
+                type: 'POST',
+                url: '/api/login',
+                data: data,
+                contentType: 'application/json',
+                success: function (data) {
+                    if (data.success) {
+                        //alert("nt");
+                        //popup.dialog('close');
+                        //ShowMessage(data.message);
+                        window.location.href = "/home/index";
+                    } else {
+                        //popup.dialog('close');
+                        ShowMessage(data.message);
+                    }
+                }
+            });
+
+        }
+        return false;
+    }
+
+    function ShowMessage(msg) {
+        toastr.error(msg);
+    }
+</script>
+}
