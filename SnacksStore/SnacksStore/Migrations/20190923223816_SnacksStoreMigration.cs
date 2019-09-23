@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace SnacksStore.Migrations
 {
-    public partial class SnackesStoreModelsApplicationDbContext : Migration
+    public partial class SnacksStoreMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -14,11 +15,45 @@ namespace SnacksStore.Migrations
                     LikeID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     UserID = table.Column<int>(nullable: false),
-                    ProductID = table.Column<int>(nullable: false)
+                    ProductID = table.Column<int>(nullable: false),
+                    Liked = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Likes", x => x.LikeID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LogPrices",
+                columns: table => new
+                {
+                    LogPricesID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    ProductID = table.Column<int>(nullable: false),
+                    PrevPrice = table.Column<string>(nullable: true),
+                    NewPrice = table.Column<string>(nullable: true),
+                    UserID = table.Column<int>(nullable: false),
+                    Date = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LogPrices", x => x.LogPricesID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LogPurchases",
+                columns: table => new
+                {
+                    LogPurchaseID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Quantity = table.Column<int>(nullable: false),
+                    ProductID = table.Column<int>(nullable: false),
+                    UserID = table.Column<int>(nullable: false),
+                    Date = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LogPurchases", x => x.LogPurchaseID);
                 });
 
             migrationBuilder.CreateTable(
@@ -100,6 +135,12 @@ namespace SnacksStore.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Likes");
+
+            migrationBuilder.DropTable(
+                name: "LogPrices");
+
+            migrationBuilder.DropTable(
+                name: "LogPurchases");
 
             migrationBuilder.DropTable(
                 name: "Products");

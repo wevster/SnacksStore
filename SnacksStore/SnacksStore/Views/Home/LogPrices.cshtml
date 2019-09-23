@@ -1,0 +1,80 @@
+﻿@model IEnumerable<SnacksStore.Models.logUserPurchases>
+@{
+    Layout = null;
+}
+
+<h2>Product</h2>
+
+<style>
+    .btn active {
+    }
+
+    .btn.active, .btn:active {
+        background-color: purple !important;
+        color: white !important;
+    }
+</style>
+<div class="container">
+    <div class="panel">
+        <h3>List of Snacks</h3>
+        @if (ViewBag.IsAdmin == 1)
+        {
+            <div class="col-md-10">
+                <a class="btn btn-success" style="margin-bottom:10px" onclick="ShowPopup('@Url.Action("AddEditProduct", "Home")')"><i class="fa fa-plus"></i> Add New Product</a>
+            </div>
+        }
+
+        <table id="SnacksTableAdmin" class="display" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Prev Price</th>
+                    <th>New Price</th>
+                    <th>User</th>
+                 
+
+                </tr>
+                @foreach (var item in Model) {
+                <tr>
+                    <td>@item.ProductName</td>
+                    <td>@item.PrevPrice</td>
+                    <td>@item.NewPrice</td>
+                    <td>@item.User</td>
+
+                </tr>
+                }
+            </thead>
+        </table>
+    </div>
+</div>
+
+@section scripts{
+
+
+
+
+    <script>
+        var popup, dataTable;
+
+        $(document).ready(function () {
+
+
+
+
+
+            dataTable = $('#SnacksTableAdmin').DataTable();
+
+
+
+
+
+
+
+        }
+
+
+
+
+    </script>
+
+}

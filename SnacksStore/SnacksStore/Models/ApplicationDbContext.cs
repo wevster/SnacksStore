@@ -19,5 +19,7 @@ namespace SnacksStore.Models
         public DbSet<TypeProduct> TypeProduct { get; set; }
         public DbSet<Users> Users { get; set; }
         public DbSet<Roles> Roles { get; set; }
+        public DbSet<LogPrices> LogPrices { get; set; }
+        public DbSet<LogPurchases> LogPurchases { get; set; }
     }
 }

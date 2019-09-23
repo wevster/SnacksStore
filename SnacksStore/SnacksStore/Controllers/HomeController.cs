@@ -78,7 +78,47 @@ namespace SnacksStore.Controllers
                 return View(ProductListQuery);
             }
         }
+
         
+        public IActionResult GetLogPrices(int id = 0)
+        {
+            //int id = Convert.ToInt32(prodID);
+            var logPrices = (from l in _context.LogPrices
+                             join u in _context.Users on l.UserID equals u.UserID
+                             join p in _context.Products on l.ProductID equals p.ProductID
+                             where l.ProductID == id //making sure have stock and availability
+                             select new logUserPurchases
+                             {
+                                 ProductID = l.ProductID,
+                                 PrevPrice = l.PrevPrice,
+                                 NewPrice = l.NewPrice,
+                                 User = u.UserName,
+                                 ProductName = p.ProductName,
+                                 Date = l.Date
+                             }).ToList();
+
+            return View(logPrices);
+        }
+
+        public IActionResult GetLogPurchases(int id = 0)
+        {
+            //int id = Convert.ToInt32(prodID);
+            var logPurchases = (from l in _context.LogPurchases
+                             join u in _context.Users on l.UserID equals u.UserID
+                             join p in _context.Products on l.ProductID equals p.ProductID
+                             where l.ProductID == id //making sure have stock and availability
+                             select new LogPurchasesUser
+                             {
+                                 
+                                 Quantity=l.Quantity,
+                                 User = u.UserName,
+                                 ProductName = p.ProductName,
+                                 Date = l.Date
+                             }).ToList();
+
+            return View(logPurchases);
+        }
+
 
         public IActionResult AddEditProduct(int id = 0)
         {

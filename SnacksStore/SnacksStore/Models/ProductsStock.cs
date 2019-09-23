@@ -16,6 +16,8 @@ namespace SnacksStore.Models
         public string Photo { get; set; }
         public int quantity { get; set; }
         public bool available { get; set; }
+        public bool ProductLiked { get; set; }
+        public int likes { get; set; }
 
     }
 }

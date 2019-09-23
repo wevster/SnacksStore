@@ -27,7 +27,8 @@ namespace SnacksStore.Controllers.api
             List<ProductsStock> ProductListQuery = new List<ProductsStock>();
 
             var cookieValue = Request.Cookies["UserLogged"];
-            
+            var cookieValueUserID = Request.Cookies["UserLoggedID"];
+
 
             if (cookieValue == "1")
             {
@@ -41,7 +42,11 @@ namespace SnacksStore.Controllers.api
                                         ProductName = p.ProductName,
                                         Details = o.Details,
                                         Price = p.Price,
-                                        Photo = p.Photo
+                                        Photo = p.Photo,
+                                        ProductLiked= _context.Likes.Where(x=>x.ProductID==p.ProductID && x.UserID==Convert.ToInt32(cookieValueUserID)).Select(x=>x.Liked).FirstOrDefault(),
+                                        likes = _context.Likes
+                                                    .Where(x=>x.ProductID == p.ProductID && x.Liked == true)
+                                                    .Select(x=>x.LikeID).Count()
                                     }).ToList();
             }
             else {
@@ -55,7 +60,11 @@ namespace SnacksStore.Controllers.api
                                         ProductName = p.ProductName,
                                         Details = o.Details,
                                         Price = p.Price,
-                                        Photo = p.Photo
+                                        Photo = p.Photo,
+                                        ProductLiked = _context.Likes.Where(x => x.ProductID == p.ProductID && x.UserID == Convert.ToInt32(cookieValueUserID)).Select(x => x.Liked).FirstOrDefault(),
+                                        likes = _context.Likes
+                                                    .Where(x => x.ProductID == p.ProductID && x.Liked==true)
+                                                    .Select(x => x.LikeID).Count()
                                     }).ToList();
             }
 
@@ -66,6 +75,7 @@ namespace SnacksStore.Controllers.api
             //return ProductListQuery;
         }
 
+        
 
         [HttpPost]
         public async Task<IActionResult> BuyProducts([FromBody] ProductsStock prod)
@@ -102,7 +112,17 @@ namespace SnacksStore.Controllers.api
 
                 await _context.SaveChangesAsync();
 
-                return Json(new { success = true, message = "You buy "+ prod.quantity + " of " + prod.ProductName });
+            // Purchase log
+            var cookieValueUserID = Request.Cookies["UserLoggedID"];
+            LogPurchases ProductsPurchased = new LogPurchases();
+            ProductsPurchased.ProductID = prod.ProductID;
+            ProductsPurchased.Quantity = prod.quantity;
+            ProductsPurchased.UserID = Convert.ToInt32(cookieValueUserID);
+            ProductsPurchased.Date = DateTime.Now;
+            _context.LogPurchases.Add(ProductsPurchased);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "You buy "+ prod.quantity + " of " + prod.ProductName });
             
         }
         // POST api/products
@@ -139,9 +159,21 @@ namespace SnacksStore.Controllers.api
             }
             else
             {
-                Products ProductToEdit = new Products();
+                var ProductToEdit =  _context.Products.Where(x => x.ProductID == prod.ProductID).FirstOrDefault();
                 ProductToEdit.ProductID = prod.ProductID;
                 ProductToEdit.ProductName = prod.ProductName;
+                if (prod.Price != ProductToEdit.Price) {
+                    // Price changing log
+                    var cookieValueUserID = Request.Cookies["UserLoggedID"];
+                    LogPrices PriceChanged = new LogPrices();
+                    PriceChanged.PrevPrice = ProductToEdit.Price;
+                    PriceChanged.NewPrice = prod.Price;
+                    PriceChanged.ProductID = prod.ProductID;
+                    PriceChanged.UserID = Convert.ToInt32(cookieValueUserID);
+                    PriceChanged.Date = DateTime.Now;
+                    _context.LogPrices.Update(PriceChanged);
+                    await _context.SaveChangesAsync();
+                }
                 ProductToEdit.Price = prod.Price;
                 ProductToEdit.TypeProduct = prod.ProductType;
                 ProductToEdit.Photo = prod.Photo;
@@ -163,6 +195,51 @@ namespace SnacksStore.Controllers.api
 
                 return Json(new { success = true, message = "Product edited successfully." });
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LikeProduct([FromBody] string prodID)
+        {
+            int Prod = Convert.ToInt32(prodID);
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var cookieValue = Request.Cookies["UserLoggedID"];
+
+
+                Likes like = _context.Likes.Where(x => x.ProductID == Prod && x.UserID == Convert.ToInt32(cookieValue)).FirstOrDefault();
+                if (like != null)
+                {
+                    if (like.Liked)
+                    {
+                        like.Liked = false;
+                    }
+                    else
+                    {
+                        like.Liked = true;
+                    }
+                    await _context.SaveChangesAsync();
+
+                }
+                else
+                {
+                    Likes likeToSave = new Likes();
+                    likeToSave.Liked = true;
+                    likeToSave.ProductID = Prod;
+                    likeToSave.UserID = Convert.ToInt32(cookieValue);
+                    _context.Add(likeToSave);
+                    await _context.SaveChangesAsync();
+
+                }
+                return Json(new { success = true, message = "Product liked successfully." });
+            }
+            catch {
+                return Json(new { success = false, message = "There is a problem trying to like the product" });
+            }
+            
         }
 
         // PUT api/products/5

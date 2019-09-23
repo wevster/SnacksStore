@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace SnacksStore.Models
 {
-    public class Likes
+    public class LogPurchases
     {
         [Key]
-        public int LikeID { get; set; }
-        public int UserID { get; set; }
+        public int LogPurchaseID { get; set; }
+        public int Quantity { get; set; }
         public int ProductID { get; set; }
-        public bool Liked { get; set; }
-        
+        public int UserID { get; set; }
+        public DateTime Date { get; set; }
     }
 }

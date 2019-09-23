@@ -37,6 +37,10 @@ namespace SnacksStore.Controllers.Api
                   "UserLoggedName",
                   userLogged.UserName);
 
+                Response.Cookies.Append(
+                  "UserLoggedID",
+                  userLogged.UserID.ToString());
+
                 return Json(new { success = true, data = userLogged, message = "Product edited successfully." });
             }
             
