@@ -3,7 +3,7 @@
 1- Download the project<br>
 2- Open the project<br>
 3- Verify if you have installed .NET Core 2.2, if not go to SDK https://dotnet.microsoft.com/download/visual-studio-sdks?utm_source=getdotnetsdk&utm_medium=referral and select whether x64 SDK or x86 SDK depending your windows<br>
-4- Add in the SQL Server Object Explorer into your MSSQLLocalDB a database with name "snacksstore" without authentication<br>
+4- Add in the SQL Server Object Explorer a MSSQLLocalDB server without authentication and after add a database with name "snacksstore" <br>
 5- Finally run PM> update-database<br>
 <br><br>
 <b>To initialize data</b><br>
