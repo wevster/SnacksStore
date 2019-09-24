@@ -8,7 +8,7 @@
 <br><br>
 <b>To initialize data</b><br>
 1-set the user by Roles:<br>
--First record must be Admin: He can edit the products, buy and see logs,<br>
+-First record must be Admin: He can add/edit the products, buy and see logs,<br>
 -Second record must be users: They just buy products.<br>
 2-Set the type of products<br>
 3-Set the users in the table users and their roles(You must use the RoleID field to set the role regarding data in Roles table) to manage or buy products.
